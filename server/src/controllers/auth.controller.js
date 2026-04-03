@@ -1,9 +1,16 @@
 import { createAuthToken } from '../utils/auth.js';
 
 function getAdminCredentials() {
+  const email = process.env.ADMIN_EMAIL?.trim();
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD are required.');
+  }
+
   return {
-    email: process.env.ADMIN_EMAIL || 'admin@portfolio.local',
-    password: process.env.ADMIN_PASSWORD || 'admin123'
+    email,
+    password
   };
 }
 
@@ -39,4 +46,3 @@ export function getSession(request, response) {
     }
   });
 }
-

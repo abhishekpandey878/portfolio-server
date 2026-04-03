@@ -4,9 +4,19 @@ import { connectDatabase } from './config/db.js';
 
 dotenv.config();
 
+function validateRequiredEnv() {
+  const requiredVariables = ['MONGODB_URI', 'CLIENT_URL', 'ADMIN_EMAIL', 'ADMIN_PASSWORD', 'AUTH_SECRET'];
+  const missingVariables = requiredVariables.filter((key) => !process.env[key]?.trim());
+
+  if (missingVariables.length) {
+    throw new Error(`Missing required environment variables: ${missingVariables.join(', ')}`);
+  }
+}
+
 const app = createApp();
 const port = Number(process.env.PORT || 5000);
 
+validateRequiredEnv();
 await connectDatabase();
 
 const server = app.listen(port, () => {

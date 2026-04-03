@@ -15,7 +15,13 @@ function base64UrlDecode(value) {
 }
 
 function getAuthSecret() {
-  return process.env.AUTH_SECRET || 'portfolio-admin-secret';
+  const authSecret = process.env.AUTH_SECRET?.trim();
+
+  if (!authSecret) {
+    throw new Error('AUTH_SECRET is required to create or verify auth tokens.');
+  }
+
+  return authSecret;
 }
 
 export function createAuthToken(payload) {
@@ -61,4 +67,3 @@ export function verifyAuthToken(token) {
     return null;
   }
 }
-
