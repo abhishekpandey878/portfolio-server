@@ -6,16 +6,37 @@ import { fileURLToPath } from 'node:url';
 import authRoutes from './routes/auth.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 
+function getAllowedOrigins() {
+  const configuredOrigins = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return new Set([
+    'http://localhost:4200',
+    'http://127.0.0.1:4200',
+    ...configuredOrigins
+  ]);
+}
+
 export function createApp() {
   const app = express();
   const currentFilePath = fileURLToPath(import.meta.url);
   const currentDirPath = path.dirname(currentFilePath);
   const clientDistPath = path.resolve(currentDirPath, '../../client/dist/portfolio-client');
   const clientIndexPath = path.join(clientDistPath, 'index.html');
+  const allowedOrigins = getAllowedOrigins();
 
   app.use(
     cors({
-      origin: process.env.CLIENT_URL || 'http://localhost:4200'
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.has(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
     })
   );
   app.use(express.json({ limit: '10mb' }));
